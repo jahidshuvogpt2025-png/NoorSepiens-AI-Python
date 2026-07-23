@@ -3,7 +3,18 @@ import os
 
 
 
-FILE = "long_memory.json"
+# Permanent memory file location
+
+BASE_DIR = os.path.dirname(
+    os.path.abspath(__file__)
+)
+
+
+FILE = os.path.join(
+    BASE_DIR,
+    "long_memory.json"
+)
+
 
 
 
@@ -26,6 +37,9 @@ DEFAULT_MEMORY = {
 
 
 
+# ================= LOAD MEMORY =================
+
+
 def load_memory():
 
     if not os.path.exists(FILE):
@@ -35,13 +49,30 @@ def load_memory():
         return DEFAULT_MEMORY
 
 
-    with open(FILE, "r", encoding="utf-8") as f:
 
-        return json.load(f)
+    try:
+
+        with open(
+            FILE,
+            "r",
+            encoding="utf-8"
+        ) as f:
+
+            return json.load(f)
+
+
+
+    except:
+
+        return DEFAULT_MEMORY
 
 
 
 
+
+
+
+# ================= SAVE MEMORY =================
 
 
 def save_memory(data):
@@ -52,11 +83,17 @@ def save_memory(data):
         encoding="utf-8"
     ) as f:
 
+
         json.dump(
+
             data,
+
             f,
+
             indent=4,
+
             ensure_ascii=False
+
         )
 
 
@@ -65,7 +102,15 @@ def save_memory(data):
 
 
 
-def add_memory(category, key, value):
+
+# ================= ADD MEMORY =================
+
+
+def add_memory(
+    category,
+    key,
+    value
+):
 
 
     memory = load_memory()
@@ -90,6 +135,86 @@ def add_memory(category, key, value):
 
 
 
+# ================= OLD SYSTEM SUPPORT =================
+
+
+def saveLongMemory(
+    chatId,
+    key,
+    value
+):
+
+
+    category = "facts"
+
+
+
+    if key in [
+
+        "name",
+        "call",
+        "nickname"
+
+    ]:
+
+        category = "identity"
+
+
+
+    elif key in [
+
+        "like",
+        "dislike",
+        "interest"
+
+    ]:
+
+        category = "preferences"
+
+
+
+    elif key in [
+
+        "skill"
+
+    ]:
+
+        category = "skills"
+
+
+
+    elif key in [
+
+        "goal"
+
+    ]:
+
+        category = "goals"
+
+
+
+
+
+    add_memory(
+
+        category,
+
+        key,
+
+        value
+
+    )
+
+
+
+
+
+
+
+
+# ================= GET MEMORY =================
+
+
 def get_memory():
 
     return load_memory()
@@ -100,6 +225,11 @@ def get_memory():
 
 
 
+# ================= CLEAR MEMORY =================
+
+
 def clear_memory():
 
-    save_memory(DEFAULT_MEMORY)
+    save_memory(
+        DEFAULT_MEMORY
+    )

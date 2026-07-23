@@ -22,61 +22,93 @@ class NoorAgent:
 
     def build_context(self):
 
-
         memory = get_memory()
 
 
-        context = ""
+        context = """
+USER LONG TERM MEMORY:
+
+"""
 
 
-        if memory.get("identity"):
-
-            context += (
-                "User Identity:\n"
-            )
-
-            for k,v in memory["identity"].items():
-
-                context += f"{k}: {v}\n"
+        identity = memory.get("identity", {})
 
 
+        if identity:
 
+            context += "\nIdentity:\n"
 
-        if memory.get("preferences"):
+            for key, value in identity.items():
 
-            context += (
-                "\nUser Preferences:\n"
-            )
-
-            for k,v in memory["preferences"].items():
-
-                context += f"{k}: {v}\n"
+                context += f"- {key}: {value}\n"
 
 
 
 
-        if memory.get("skills"):
-
-            context += (
-                "\nUser Skills:\n"
-            )
-
-            for k,v in memory["skills"].items():
-
-                context += f"{k}: {v}\n"
+        preferences = memory.get(
+            "preferences",
+            {}
+        )
 
 
+        if preferences:
+
+            context += "\nPreferences:\n"
+
+            for key, value in preferences.items():
+
+                context += f"- {key}: {value}\n"
 
 
-        if memory.get("goals"):
 
-            context += (
-                "\nUser Goals:\n"
-            )
 
-            for k,v in memory["goals"].items():
+        skills = memory.get(
+            "skills",
+            {}
+        )
 
-                context += f"{k}: {v}\n"
+
+        if skills:
+
+            context += "\nSkills:\n"
+
+            for key, value in skills.items():
+
+                context += f"- {key}: {value}\n"
+
+
+
+
+        goals = memory.get(
+            "goals",
+            {}
+        )
+
+
+        if goals:
+
+            context += "\nGoals:\n"
+
+            for key, value in goals.items():
+
+                context += f"- {key}: {value}\n"
+
+
+
+
+        facts = memory.get(
+            "facts",
+            {}
+        )
+
+
+        if facts:
+
+            context += "\nFacts:\n"
+
+            for key, value in facts.items():
+
+                context += f"- {key}: {value}\n"
 
 
 
@@ -99,18 +131,22 @@ class NoorAgent:
 
 You are NoorSepiens AI.
 
-Important user memory:
+You have permanent memory about the user.
+
 {memory_context}
 
 
-Rules:
-- Always respect saved memory.
-- Call user according to identity preference.
-- Never invent personal information.
-- Answer naturally in Bangla.
+Memory rules:
+
+- If identity name exists, it is the user's real name.
+- If identity call exists, use that nickname when talking to the user.
+- If user asks "আমার নাম কি" answer from memory.
+- Do not ask again for information already stored.
+- Always reply in natural Bangla.
 
 
-User:
+User message:
+
 {text}
 
 """
@@ -148,10 +184,11 @@ User:
 
                     ]
 
-                }
+                },
+
+                timeout=60
 
             )
-
 
 
             data = result.json()
@@ -162,7 +199,6 @@ User:
 
 
         except Exception as e:
-
 
             print(e)
 

@@ -1,7 +1,8 @@
 import sys
 import os
 
-# project root path add
+
+# Add project root path
 sys.path.append(
     os.path.dirname(
         os.path.dirname(
@@ -11,15 +12,20 @@ sys.path.append(
 )
 
 
-from telegram.bot import run_bot
+from telegram_bot.bot import run_bot
+
 
 
 
 def main():
 
-    print("Starting NoorSepiens AI Python 🚀")
+    print(
+        "Starting NoorSepiens AI Python 🚀"
+    )
+
 
     run_bot()
+
 
 
 

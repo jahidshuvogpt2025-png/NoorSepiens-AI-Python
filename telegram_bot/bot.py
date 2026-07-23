@@ -2,6 +2,12 @@ import os
 
 from dotenv import load_dotenv
 
+extract_memory(text)
+
+print(
+    "CURRENT MEMORY:",
+    get_memory()
+)
 from core.memory_extractor import extract_memory
 
 from telegram import Update
@@ -105,6 +111,8 @@ async def chat(
         extract_memory(
             text
         )
+
+    from core.long_memory import get_memory
 
 
 

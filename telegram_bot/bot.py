@@ -2,6 +2,8 @@ import os
 
 from dotenv import load_dotenv
 
+from core.memory_extractor import extract_memory
+
 from telegram import Update
 
 from telegram.ext import (
@@ -86,6 +88,7 @@ async def profile(
 
 # ================= CHAT =================
 
+
 async def chat(
     update: Update,
     context: ContextTypes.DEFAULT_TYPE
@@ -93,12 +96,23 @@ async def chat(
 
     try:
 
+
         text = update.message.text
 
 
+
+        # Save user information to long memory
+        extract_memory(
+            text
+        )
+
+
+
+        # Generate AI reply
         reply = agent.response(
             text
         )
+
 
 
         await update.message.reply_text(
@@ -106,17 +120,18 @@ async def chat(
         )
 
 
+
     except Exception as error:
 
-        print(error)
+
+        print(
+            error
+        )
 
 
         await update.message.reply_text(
             "AI error হয়েছে ❌"
         )
-
-
-
 
 
 

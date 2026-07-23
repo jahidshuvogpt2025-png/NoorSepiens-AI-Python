@@ -7,23 +7,50 @@ FILE = "long_memory.json"
 
 
 
+
+DEFAULT_MEMORY = {
+
+    "identity": {},
+
+    "preferences": {},
+
+    "skills": {},
+
+    "goals": {},
+
+    "facts": {}
+
+}
+
+
+
+
+
 def load_memory():
 
     if not os.path.exists(FILE):
 
-        return {}
+        save_memory(DEFAULT_MEMORY)
+
+        return DEFAULT_MEMORY
 
 
-    with open(FILE,"r") as f:
+    with open(FILE, "r", encoding="utf-8") as f:
 
         return json.load(f)
 
 
 
 
+
+
 def save_memory(data):
 
-    with open(FILE,"w") as f:
+    with open(
+        FILE,
+        "w",
+        encoding="utf-8"
+    ) as f:
 
         json.dump(
             data,
@@ -35,12 +62,24 @@ def save_memory(data):
 
 
 
-def add_memory(key,value):
+
+
+
+def add_memory(category, key, value):
+
 
     memory = load_memory()
 
 
-    memory[key] = value
+
+    if category not in memory:
+
+        memory[category] = {}
+
+
+
+    memory[category][key] = value
+
 
 
     save_memory(memory)
@@ -48,6 +87,19 @@ def add_memory(key,value):
 
 
 
+
+
+
 def get_memory():
 
     return load_memory()
+
+
+
+
+
+
+
+def clear_memory():
+
+    save_memory(DEFAULT_MEMORY)

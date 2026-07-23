@@ -4,142 +4,75 @@ from core.long_memory import add_memory
 
 
 
-
-def convert_bangla_number(text):
-
-    bangla = "০১২৩৪৫৬৭৮৯"
-    english = "0123456789"
-
-    result = ""
-
-    for ch in text:
-
-        if ch in bangla:
-
-            result += english[
-                bangla.index(ch)
-            ]
-
-        else:
-
-            result += ch
-
-
-    return result
-
-
-
-
-
-
 def extract_memory(text):
 
-
-    memories = []
-
+    text = text.strip()
 
 
-    # Name
+    # Name memory
 
-    name = re.search(
-        r"আমার নাম\s+([^\s,.!?]+)",
+    match = re.search(
+        r"আমার নাম\s+(.+)",
         text
     )
 
+    if match:
 
-    if name:
+        name = match.group(1).strip()
 
         add_memory(
             "identity",
             "name",
-            name.group(1)
-        )
-
-        memories.append(
-            "name"
+            name
         )
 
 
 
+    # Call name
 
-
-    # Call preference
-
-    call = re.search(
+    match = re.search(
         r"আমাকে\s+(.+?)\s+বলে ডাকবে",
         text
     )
 
+    if match:
 
-    if call:
+        call_name = match.group(1).strip()
 
         add_memory(
             "identity",
             "call",
-            call.group(1)
+            call_name
         )
-
-        memories.append(
-            "call"
-        )
-
-
-
-
 
 
 
     # Age
 
-    age = re.search(
-        r"আমার বয়স\s*([০-৯0-9]+)",
+    match = re.search(
+        r"আমার বয়স\s+(.+)",
         text
     )
 
-
-    if age:
+    if match:
 
         add_memory(
             "facts",
             "age",
-            convert_bangla_number(
-                age.group(1)
-            )
+            match.group(1).strip()
         )
-
-        memories.append(
-            "age"
-        )
-
-
-
-
 
 
 
     # Skill
 
-    skill = re.search(
-        r"(Python|JavaScript|AI|প্রোগ্রামিং)",
-        text,
-        re.IGNORECASE
-    )
-
-
-    if skill:
+    if "Python" in text or "পাইথন" in text:
 
         add_memory(
             "skills",
             "skill",
-            skill.group(1)
+            "Python"
         )
-
-        memories.append(
-            "skill"
-        )
-
-
-
 
 
 
@@ -147,20 +80,8 @@ def extract_memory(text):
 
     if "AI Engineer" in text or "এআই ইঞ্জিনিয়ার" in text:
 
-
         add_memory(
             "goals",
             "goal",
             "AI Engineer"
         )
-
-
-        memories.append(
-            "goal"
-        )
-
-
-
-
-
-    return memories

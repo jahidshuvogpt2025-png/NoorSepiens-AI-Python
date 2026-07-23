@@ -20,27 +20,30 @@ class NoorAgent:
 
 
 
+
     def build_context(self):
+
 
         memory = get_memory()
 
 
-        context = """
-USER LONG TERM MEMORY:
-
-"""
+        context = ""
 
 
-        identity = memory.get("identity", {})
+
+        identity = memory.get(
+            "identity",
+            {}
+        )
 
 
         if identity:
 
-            context += "\nIdentity:\n"
+            context += "\nUser Identity:\n"
 
-            for key, value in identity.items():
+            for k, v in identity.items():
 
-                context += f"- {key}: {value}\n"
+                context += f"- {k}: {v}\n"
 
 
 
@@ -53,11 +56,11 @@ USER LONG TERM MEMORY:
 
         if preferences:
 
-            context += "\nPreferences:\n"
+            context += "\nUser Preferences:\n"
 
-            for key, value in preferences.items():
+            for k, v in preferences.items():
 
-                context += f"- {key}: {value}\n"
+                context += f"- {k}: {v}\n"
 
 
 
@@ -70,11 +73,11 @@ USER LONG TERM MEMORY:
 
         if skills:
 
-            context += "\nSkills:\n"
+            context += "\nUser Skills:\n"
 
-            for key, value in skills.items():
+            for k, v in skills.items():
 
-                context += f"- {key}: {value}\n"
+                context += f"- {k}: {v}\n"
 
 
 
@@ -87,11 +90,11 @@ USER LONG TERM MEMORY:
 
         if goals:
 
-            context += "\nGoals:\n"
+            context += "\nUser Goals:\n"
 
-            for key, value in goals.items():
+            for k, v in goals.items():
 
-                context += f"- {key}: {value}\n"
+                context += f"- {k}: {v}\n"
 
 
 
@@ -104,11 +107,11 @@ USER LONG TERM MEMORY:
 
         if facts:
 
-            context += "\nFacts:\n"
+            context += "\nUser Facts:\n"
 
-            for key, value in facts.items():
+            for k, v in facts.items():
 
-                context += f"- {key}: {value}\n"
+                context += f"- {k}: {v}\n"
 
 
 
@@ -123,7 +126,7 @@ USER LONG TERM MEMORY:
     def response(self, text):
 
 
-        memory_context = self.build_context()
+        memory = self.build_context()
 
 
 
@@ -131,18 +134,23 @@ USER LONG TERM MEMORY:
 
 You are NoorSepiens AI.
 
-You have permanent memory about the user.
+You have a permanent memory system.
 
-{memory_context}
+Saved user memory:
+
+{memory}
 
 
-Memory rules:
 
-- If identity name exists, it is the user's real name.
-- If identity call exists, use that nickname when talking to the user.
-- If user asks "আমার নাম কি" answer from memory.
-- Do not ask again for information already stored.
-- Always reply in natural Bangla.
+Rules:
+
+1. Always use saved memory when answering.
+2. If user asks "আমি কে" or similar, answer from identity memory.
+3. If user has a call name, use that name.
+4. Never say you don't know if memory contains the answer.
+5. Reply naturally in Bangla.
+6. Be friendly and helpful.
+
 
 
 User message:
@@ -191,6 +199,7 @@ User message:
             )
 
 
+
             data = result.json()
 
 
@@ -200,6 +209,8 @@ User message:
 
         except Exception as e:
 
+
             print(e)
+
 
             return "AI response error ❌"

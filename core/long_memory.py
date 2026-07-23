@@ -2,20 +2,10 @@ import json
 import os
 
 
-
-# Permanent memory file location
-
-BASE_DIR = os.path.dirname(
-    os.path.abspath(__file__)
-)
-
-
 FILE = os.path.join(
-    BASE_DIR,
+    os.path.dirname(__file__),
     "long_memory.json"
 )
-
-
 
 
 
@@ -37,9 +27,6 @@ DEFAULT_MEMORY = {
 
 
 
-# ================= LOAD MEMORY =================
-
-
 def load_memory():
 
     if not os.path.exists(FILE):
@@ -47,7 +34,6 @@ def load_memory():
         save_memory(DEFAULT_MEMORY)
 
         return DEFAULT_MEMORY
-
 
 
     try:
@@ -61,8 +47,10 @@ def load_memory():
             return json.load(f)
 
 
+    except Exception:
 
-    except:
+
+        save_memory(DEFAULT_MEMORY)
 
         return DEFAULT_MEMORY
 
@@ -70,9 +58,6 @@ def load_memory():
 
 
 
-
-
-# ================= SAVE MEMORY =================
 
 
 def save_memory(data):
@@ -102,15 +87,7 @@ def save_memory(data):
 
 
 
-
-# ================= ADD MEMORY =================
-
-
-def add_memory(
-    category,
-    key,
-    value
-):
+def add_memory(category, key, value):
 
 
     memory = load_memory()
@@ -135,86 +112,6 @@ def add_memory(
 
 
 
-# ================= OLD SYSTEM SUPPORT =================
-
-
-def saveLongMemory(
-    chatId,
-    key,
-    value
-):
-
-
-    category = "facts"
-
-
-
-    if key in [
-
-        "name",
-        "call",
-        "nickname"
-
-    ]:
-
-        category = "identity"
-
-
-
-    elif key in [
-
-        "like",
-        "dislike",
-        "interest"
-
-    ]:
-
-        category = "preferences"
-
-
-
-    elif key in [
-
-        "skill"
-
-    ]:
-
-        category = "skills"
-
-
-
-    elif key in [
-
-        "goal"
-
-    ]:
-
-        category = "goals"
-
-
-
-
-
-    add_memory(
-
-        category,
-
-        key,
-
-        value
-
-    )
-
-
-
-
-
-
-
-
-# ================= GET MEMORY =================
-
-
 def get_memory():
 
     return load_memory()
@@ -225,11 +122,6 @@ def get_memory():
 
 
 
-# ================= CLEAR MEMORY =================
-
-
 def clear_memory():
 
-    save_memory(
-        DEFAULT_MEMORY
-    )
+    save_memory(DEFAULT_MEMORY)

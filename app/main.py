@@ -1,4 +1,4 @@
-from telegram.bot import run_bot
+from bot import run_bot
 
 
 def main():

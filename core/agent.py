@@ -1,9 +1,7 @@
-from ai.router import AIRouter
-from core.memory import Memory
-from core.long_memory import (
-    add_memory,
-    get_memory
-)
+import os
+import requests
+
+from core.long_memory import get_memory
 
 
 
@@ -12,84 +10,88 @@ class NoorAgent:
 
     def __init__(self):
 
-        self.name = "NoorSepiens AI"
+        self.api_key = os.getenv(
+            "OPENROUTER_API_KEY"
+        )
 
-        self.ai = AIRouter()
+        self.model = "openai/gpt-4o-mini"
 
-        self.memory = Memory()
+
+
+
+
+    def build_context(self):
+
+
+        memory = get_memory()
+
+
+        context = ""
+
+
+        if memory.get("identity"):
+
+            context += (
+                "User Identity:\n"
+            )
+
+            for k,v in memory["identity"].items():
+
+                context += f"{k}: {v}\n"
+
+
+
+
+        if memory.get("preferences"):
+
+            context += (
+                "\nUser Preferences:\n"
+            )
+
+            for k,v in memory["preferences"].items():
+
+                context += f"{k}: {v}\n"
+
+
+
+
+        if memory.get("skills"):
+
+            context += (
+                "\nUser Skills:\n"
+            )
+
+            for k,v in memory["skills"].items():
+
+                context += f"{k}: {v}\n"
+
+
+
+
+        if memory.get("goals"):
+
+            context += (
+                "\nUser Goals:\n"
+            )
+
+            for k,v in memory["goals"].items():
+
+                context += f"{k}: {v}\n"
+
+
+
+        return context
+
+
+
+
 
 
 
     def response(self, text):
 
 
-        # Save conversation memory
-
-        self.memory.save(text)
-
-
-
-        # Auto save simple memories
-
-        lower = text.lower()
-
-
-
-        if "আমার নাম" in text:
-
-            name = text.replace(
-                "আমার নাম",
-                ""
-            ).strip()
-
-
-            add_memory(
-                "name",
-                name
-            )
-
-
-
-        if "আমি" in text and "শিখছি" in text:
-
-            skill = text.replace(
-                "আমি",
-                ""
-            ).replace(
-                "শিখছি",
-                ""
-            ).strip()
-
-
-            add_memory(
-                "skill",
-                skill
-            )
-
-
-
-        if "আমার লক্ষ্য" in text:
-
-            goal = text.replace(
-                "আমার লক্ষ্য",
-                ""
-            ).strip()
-
-
-            add_memory(
-                "goal",
-                goal
-            )
-
-
-
-
-
-        history = self.memory.get()
-
-
-
-        long_memory = get_memory()
+        memory_context = self.build_context()
 
 
 
@@ -97,41 +99,71 @@ class NoorAgent:
 
 You are NoorSepiens AI.
 
-Reply in Bangla.
+Important user memory:
+{memory_context}
 
 
-User Long Term Memory:
-
-{long_memory}
-
-
-Recent Conversation:
-
-{history}
+Rules:
+- Always respect saved memory.
+- Call user according to identity preference.
+- Never invent personal information.
+- Answer naturally in Bangla.
 
 
 User:
-
 {text}
-
-
-Use memory naturally.
-
-Be helpful and friendly.
 
 """
 
 
 
-        reply = self.ai.ask(
-            prompt
-        )
+        try:
+
+
+            result = requests.post(
+
+                "https://openrouter.ai/api/v1/chat/completions",
+
+                headers={
+
+                    "Authorization":
+                    f"Bearer {self.api_key}",
+
+                    "Content-Type":
+                    "application/json"
+
+                },
+
+
+                json={
+
+                    "model": self.model,
+
+                    "messages":[
+
+                        {
+                            "role":"system",
+                            "content":prompt
+                        }
+
+                    ]
+
+                }
+
+            )
 
 
 
-        self.memory.save(
-            "Assistant: " + reply
-        )
+            data = result.json()
 
 
-        return reply
+            return data["choices"][0]["message"]["content"]
+
+
+
+        except Exception as e:
+
+
+            print(e)
+
+            return "AI response error ❌"

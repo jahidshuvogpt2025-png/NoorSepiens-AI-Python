@@ -1,7 +1,8 @@
 import os
 import requests
 
-from core.long_memory import get_memory
+from core.memory_engine import memory
+
 
 
 
@@ -21,97 +22,41 @@ class NoorAgent:
 
 
 
-    def build_context(self):
+    def build_memory_context(self):
 
 
-        memory = get_memory()
+        data = memory.get()
 
 
-        context = ""
+        context = """
 
+USER MEMORY:
 
-
-        identity = memory.get(
-            "identity",
-            {}
-        )
-
-
-        if identity:
-
-            context += "\nUser Identity:\n"
-
-            for k, v in identity.items():
-
-                context += f"- {k}: {v}\n"
+"""
 
 
 
-
-        preferences = memory.get(
-            "preferences",
-            {}
-        )
+        for category, values in data.items():
 
 
-        if preferences:
+            if category == "history":
 
-            context += "\nUser Preferences:\n"
-
-            for k, v in preferences.items():
-
-                context += f"- {k}: {v}\n"
+                continue
 
 
 
-
-        skills = memory.get(
-            "skills",
-            {}
-        )
+            if values:
 
 
-        if skills:
-
-            context += "\nUser Skills:\n"
-
-            for k, v in skills.items():
-
-                context += f"- {k}: {v}\n"
+                context += f"\n{category.upper()}:\n"
 
 
 
+                for key, value in values.items():
 
-        goals = memory.get(
-            "goals",
-            {}
-        )
-
-
-        if goals:
-
-            context += "\nUser Goals:\n"
-
-            for k, v in goals.items():
-
-                context += f"- {k}: {v}\n"
-
-
-
-
-        facts = memory.get(
-            "facts",
-            {}
-        )
-
-
-        if facts:
-
-            context += "\nUser Facts:\n"
-
-            for k, v in facts.items():
-
-                context += f"- {k}: {v}\n"
+                    context += (
+                        f"{key}: {value}\n"
+                    )
 
 
 
@@ -126,7 +71,7 @@ class NoorAgent:
     def response(self, text):
 
 
-        memory = self.build_context()
+        memory_context = self.build_memory_context()
 
 
 
@@ -134,22 +79,23 @@ class NoorAgent:
 
 You are NoorSepiens AI.
 
-You have a permanent memory system.
+You are a personal AI assistant.
 
-Saved user memory:
 
-{memory}
+User permanent memory:
+
+{memory_context}
 
 
 
 Rules:
 
-1. Always use saved memory when answering.
-2. If user asks "আমি কে" or similar, answer from identity memory.
-3. If user has a call name, use that name.
-4. Never say you don't know if memory contains the answer.
-5. Reply naturally in Bangla.
-6. Be friendly and helpful.
+- Always use memory when answering.
+- If user asks about himself, use saved identity.
+- Respect user's preferred name.
+- Reply in Bangla.
+- Never invent user information.
+- Be natural and friendly.
 
 
 
@@ -164,7 +110,7 @@ User message:
         try:
 
 
-            result = requests.post(
+            response = requests.post(
 
                 "https://openrouter.ai/api/v1/chat/completions",
 
@@ -186,8 +132,19 @@ User message:
                     "messages":[
 
                         {
+
                             "role":"system",
+
                             "content":prompt
+
+                        },
+
+                        {
+
+                            "role":"user",
+
+                            "content":text
+
                         }
 
                     ]
@@ -200,17 +157,42 @@ User message:
 
 
 
-            data = result.json()
+            result = response.json()
 
 
-            return data["choices"][0]["message"]["content"]
+
+            reply = (
+                result["choices"][0]
+                ["message"]
+                ["content"]
+            )
+
+
+
+            # save conversation
+
+            memory.remember_chat(
+
+                text,
+
+                reply
+
+            )
+
+
+
+            return reply
+
 
 
 
         except Exception as e:
 
 
-            print(e)
+            print(
+                "AI ERROR:",
+                e
+            )
 
 
             return "AI response error ❌"

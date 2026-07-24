@@ -1,87 +1,110 @@
 import re
 
-from core.long_memory import add_memory
+from core.memory_engine import memory
+
 
 
 
 def extract_memory(text):
 
-    text = text.strip()
 
+    # Name
 
-    # Name memory
-
-    match = re.search(
+    name = re.search(
         r"আমার নাম\s+(.+)",
         text
     )
 
-    if match:
+    if name:
 
-        name = match.group(1).strip()
-
-        add_memory(
+        memory.add(
             "identity",
             "name",
-            name
+            name.group(1).strip()
         )
+
 
 
 
     # Call name
 
-    match = re.search(
+    call = re.search(
         r"আমাকে\s+(.+?)\s+বলে ডাকবে",
         text
     )
 
-    if match:
+    if call:
 
-        call_name = match.group(1).strip()
-
-        add_memory(
+        memory.add(
             "identity",
             "call",
-            call_name
+            call.group(1).strip()
         )
 
 
-
-    # Age
-
-    match = re.search(
-        r"আমার বয়স\s+(.+)",
-        text
-    )
-
-    if match:
-
-        add_memory(
-            "facts",
-            "age",
-            match.group(1).strip()
-        )
 
 
 
     # Skill
 
-    if "Python" in text or "পাইথন" in text:
+    skill = re.search(
+        r"(Python|JavaScript|AI|প্রোগ্রামিং)",
+        text,
+        re.IGNORECASE
+    )
 
-        add_memory(
+
+    if skill:
+
+        memory.add(
             "skills",
             "skill",
-            "Python"
+            skill.group(1)
         )
+
+
 
 
 
     # Goal
 
-    if "AI Engineer" in text or "এআই ইঞ্জিনিয়ার" in text:
+    goal = re.search(
+        r"(AI Engineer|এআই ইঞ্জিনিয়ার|Developer)",
+        text,
+        re.IGNORECASE
+    )
 
-        add_memory(
+
+    if goal:
+
+        memory.add(
             "goals",
             "goal",
-            "AI Engineer"
+            goal.group(1)
         )
+
+
+
+
+
+    # Like
+
+    like = re.search(
+        r"আমি\s+(.+)\s+পছন্দ করি",
+        text
+    )
+
+
+    if like:
+
+        memory.add(
+            "preferences",
+            "like",
+            like.group(1).strip()
+        )
+
+
+
+
+
+    return memory.get()

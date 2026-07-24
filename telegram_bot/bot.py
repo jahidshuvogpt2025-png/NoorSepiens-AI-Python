@@ -21,8 +21,6 @@ from core.agent import NoorAgent
 
 from core.memory_extractor import extract_memory
 
-from core.long_memory import get_memory
-
 
 
 load_dotenv()
@@ -47,31 +45,23 @@ async def start(
 
 
     create_user(
-
         user.id,
-
         user.username or "",
-
         user.first_name or ""
-
     )
 
 
-
     await update.message.reply_text(
-
         """
 🤖 NoorSepiens AI
 
-Python Version চালু হয়েছে ✅
+Memory Engine v2 চালু হয়েছে ✅
 
 আমি আপনার তথ্য মনে রাখতে পারবো।
 
 প্রশ্ন করুন।
 """
-
     )
-
 
 
 
@@ -83,22 +73,16 @@ Python Version চালু হয়েছে ✅
 
 
 async def profile(
-
     update: Update,
-
     context: ContextTypes.DEFAULT_TYPE
-
 ):
 
 
     card = generate_profile()
 
 
-
     await update.message.reply_text(
-
         card
-
     )
 
 
@@ -112,13 +96,9 @@ async def profile(
 
 
 async def chat(
-
     update: Update,
-
     context: ContextTypes.DEFAULT_TYPE
-
 ):
-
 
     try:
 
@@ -127,50 +107,37 @@ async def chat(
 
 
 
-        # Extract permanent memory
-
-        extract_memory(text)
-
-
-
-        # Debug memory
-
-        print(
-            "CURRENT MEMORY:",
-            get_memory()
+        # Extract user information
+        extract_memory(
+            text
         )
 
 
 
         # AI response
-
         reply = agent.response(
-
             text
-
         )
 
 
 
         await update.message.reply_text(
-
             reply
-
         )
-
 
 
 
     except Exception as error:
 
 
-        print(error)
+        print(
+            "CHAT ERROR:",
+            error
+        )
 
 
         await update.message.reply_text(
-
             "AI error হয়েছে ❌"
-
         )
 
 
@@ -193,26 +160,31 @@ def run_bot():
 
 
 
+    if not token:
+
+        print(
+            "BOT_TOKEN missing ❌"
+        )
+
+        return
+
+
+
+
     app = Application.builder().token(
-
         token
-
     ).build()
 
 
 
 
 
+
     app.add_handler(
-
         CommandHandler(
-
             "start",
-
             start
-
         )
-
     )
 
 
@@ -220,15 +192,10 @@ def run_bot():
 
 
     app.add_handler(
-
         CommandHandler(
-
             "profile",
-
             profile
-
         )
-
     )
 
 
@@ -236,15 +203,10 @@ def run_bot():
 
 
     app.add_handler(
-
         MessageHandler(
-
             filters.TEXT & ~filters.COMMAND,
-
             chat
-
         )
-
     )
 
 
@@ -252,9 +214,7 @@ def run_bot():
 
 
     print(
-
-        "NoorSepiens Python Bot Started 🚀"
-
+        "NoorSepiens AI Memory Engine v2 Started 🚀"
     )
 
 
